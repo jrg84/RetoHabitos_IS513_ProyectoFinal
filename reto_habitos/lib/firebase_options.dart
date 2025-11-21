@@ -58,7 +58,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBSr9itBZnRJyX_cJI2w8tTCy1i2PVlasE',
-    appId: '1:281575281632:android:5e837b8cfb1ecef29bd185',
+    appId: '1:281575281632:android:bd8a45dc743e81a89bd185',
     messagingSenderId: '281575281632',
     projectId: 'retohabitos-1b872',
     storageBucket: 'retohabitos-1b872.firebasestorage.app',
@@ -72,4 +72,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'retohabitos-1b872.firebasestorage.app',
     iosBundleId: 'com.example.retoHabitos',
   );
+
 }
