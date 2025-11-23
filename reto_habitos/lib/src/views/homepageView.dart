@@ -1,0 +1,491 @@
+// lib/src/views/home_page.dart
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:go_router/go_router.dart';
+import '../models/HabitosModel.dart';
+import '../providers/habitosprovider.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final HabitoProvider _provider = HabitoProvider();
+  final TextEditingController _searchController = TextEditingController();
+  String _filtro = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 250, 250, 250),
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 156, 175, 136),
+        elevation: 0,
+        title: const Text(
+          'Reto de Hábitos',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      drawer: _buildDrawer(),
+      body: Column(
+        children: [
+          // input de busqueda
+          Container(
+            color: const Color.fromARGB(255, 156, 175, 136),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {
+                  _filtro = value.toLowerCase();
+                });
+              },
+              decoration: InputDecoration(
+                hintText: 'Buscar hábitos...',
+                filled: true,
+                fillColor: Colors.white,
+                prefixIcon: const Icon(Icons.search, color: Color.fromARGB(255, 99, 110, 114)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+              ),
+            ),
+          ),
+          
+          
+          Expanded(
+            child: StreamBuilder<List<Habito>>(
+              stream: _provider.getHabitosUsuario(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Color.fromARGB(255, 156, 175, 136),
+                    ),
+                  );
+                }
+
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.red,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error al cargar hábitos',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          snapshot.error.toString(),
+                          style: TextStyle(color: Colors.grey[600]),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                final habitos = snapshot.data ?? [];
+                // final habitos = [];
+                
+                // flitrar habitos
+                final habitosFiltrados = habitos.where((h) {
+                  return h.nombre.toLowerCase().contains(_filtro);
+                }).toList();
+
+                if (habitosFiltrados.isEmpty) {
+                  if (_filtro.isNotEmpty) {
+                    return Center(
+                      child: Text(
+                        'No se encontraron hábitos',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    );
+                  }
+                  return _buildEmptyState();
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: habitosFiltrados.length,
+                  itemBuilder: (context, index) {
+                    return _buildHabitoCard(habitosFiltrados[index]);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          // TODO: Navegar a crear hábito
+          context.push('/habitos/crear');
+        },
+        backgroundColor: const Color.fromARGB(255, 156, 175, 136),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text(
+          'Nuevo',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawer() {
+    // final user = FirebaseAuth.instance.currentUser;
+    
+    return Drawer(
+      child: Column(
+        children: [
+          // Header con perfil
+          // UserAccountsDrawerHeader(
+          //   decoration: const BoxDecoration(
+          //     color: Color(0xFF9CAF88),
+          //   ),
+          //   currentAccountPicture: CircleAvatar(
+          //     backgroundColor: Colors.white,
+          //     // backgroundImage: user?.photoURL != null
+          //     //     ? NetworkImage(user!.photoURL!)
+          //     //     : null,
+          //     // child: user?.photoURL == null
+          //     //     ? const Icon(Icons.person, size: 40, color: Color(0xFF9CAF88))
+          //     //     : null,
+          //   ),
+          //   accountName: Text( 'Usuario',
+          //     // user?.displayName ?? 'Usuario',
+          //     style: const TextStyle(
+          //       fontWeight: FontWeight.bold,
+          //       fontSize: 18,
+          //     ),
+          //   ),
+          //   accountEmail: Text(user?.email ?? ''),
+          // ),
+
+          // menu
+          ListTile(
+            leading: const Icon(Icons.home, color: Color.fromARGB(255, 156, 175, 136)),
+            title: const Text(
+              'Inicio',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            selected: true,
+            selectedTileColor: const Color.fromARGB(255, 184, 224, 210).withOpacity(0.2),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+
+          const Spacer(),
+
+          const Divider(),
+
+          // cerrar sesion
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Cerrar Sesión'),
+            onTap: () async {
+              await FirebaseAuth.instance.signOut();
+              if (context.mounted) {
+                context.go('/login');
+              }
+            },
+          ),
+          
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Ilustración
+            Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 184, 224, 210).withOpacity(0.3),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.self_improvement,
+                size: 100,
+                color: Color.fromARGB(255, 156, 175, 136),
+              ),
+            ),
+            
+            const SizedBox(height: 32),
+            
+            const Text(
+              'Aún no tienes hábitos',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 45, 52, 54),
+              ),
+            ),
+            
+            const SizedBox(height: 12),
+            
+            Text(
+              'Crea tu primer hábito para empezar un nuevo reto',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+            
+            const SizedBox(height: 32),
+            
+            // ElevatedButton.icon(
+            //   onPressed: () {
+            //     context.push('/habitos/crear');
+            //   },
+            //   icon: const Icon(Icons.add),
+            //   label: const Text('Crear mi primer hábito'),
+            //   style: ElevatedButton.styleFrom(
+            //     backgroundColor: const Color(0xFF9CAF88),
+            //     foregroundColor: Colors.white,
+            //     padding: const EdgeInsets.symmetric(
+            //       horizontal: 32,
+            //       vertical: 16,
+            //     ),
+            //     shape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(12),
+            //     ),
+            //   ),
+            // ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHabitoCard(Habito habito) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: InkWell(
+        onTap: () {
+          // navegacion a detalle del hábito
+          context.push('/habitos/${habito.id}');
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // grafico 
+              SizedBox(
+                width: 80,
+                height: 80,
+                child: _buildDonutChart(habito),
+              ),
+              
+              const SizedBox(width: 16),
+              
+              // informacion de hábito
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Nombre
+                    Text(
+                      habito.nombre,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 45, 52, 54),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 8),
+                    
+                    
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.check_circle_outline,
+                          size: 16,
+                          color: Color.fromARGB(255, 156, 175, 136),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${habito.diasRealizados}/30 días',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color.fromARGB(255, 99, 110, 114),
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 4),
+                    
+                    
+                    Row(
+                      children: [
+                        const Text(
+                          '🔥',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${habito.streakActual} días seguidos',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color.fromARGB(255, 99, 110, 114),
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 4),
+                    
+                    
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.calendar_today,
+                          size: 16,
+                          color: Color.fromARGB(255, 212, 165, 116),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Termina: ${_formatearFecha(habito.fechaFin)}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color.fromARGB(255, 99, 110, 114),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              
+              // dias restantes
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(100, 180, 255, 229),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      '${habito.diasRestantes}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 45, 52, 54),
+                      ),
+                    ),
+                    const Text(
+                      'días',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Color.fromARGB(255, 99, 110, 114),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildDonutChart(Habito habito) {
+    final porcentaje = habito.porcentajeCompletado;
+    
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        PieChart(
+          PieChartData(
+            sectionsSpace: 0,
+            centerSpaceRadius: 25,
+            startDegreeOffset: -90,
+            sections: [
+              // Completado
+              PieChartSectionData(
+                value: habito.diasRealizados.toDouble(),
+                color: const Color.fromARGB(255, 156, 175, 136),
+                radius: 10,
+                showTitle: false,
+              ),
+              // Restante
+              PieChartSectionData(
+                value: (30 - habito.diasRealizados).toDouble(),
+                color: const Color.fromARGB(255, 224, 224, 224),
+                radius: 10,
+                showTitle: false,
+              ),
+            ],
+          ),
+        ),
+
+        Text(
+          '${porcentaje.toInt()}%',
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 45, 52, 54),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatearFecha(DateTime fecha) {
+    final meses = [
+      'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+      'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+    ];
+    return '${fecha.day} ${meses[fecha.month - 1]}';
+  }
+}
