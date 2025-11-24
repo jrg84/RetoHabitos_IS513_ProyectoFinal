@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/HabitosModel.dart';
 import '../providers/habitosprovider.dart';
 
@@ -137,9 +138,81 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(16),
                   itemCount: habitosFiltrados.length,
                   itemBuilder: (context, index) {
-                    return _buildHabitoCard(habitosFiltrados[index]);
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Dismissible(
+                        key: Key(habitosFiltrados[index].id!),
+                        confirmDismiss: (direction) async {
+                          if (direction == DismissDirection.endToStart) {
+                            // editar
+                            context.push(
+                              '/editar/${habitosFiltrados[index].id}',
+                              extra: habitosFiltrados[index],
+                            );
+                            return false;
+                          }
+
+                          // eliminar
+                          return await _showDeleteConfirmation(
+                            context,
+                            habitosFiltrados[index],
+                          );
+                        },
+                        onDismissed: (direction) async {
+                          if (direction == DismissDirection.startToEnd) {
+                            await FirebaseFirestore.instance
+                                .collection('habitos')
+                                .doc(habitosFiltrados[index].id)
+                                .delete();
+                          }
+                        },
+                        background: Container(
+                          padding: const EdgeInsets.only(left: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Icon(
+                              Icons.delete_outline_rounded,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                          ),
+                        ),
+                        secondaryBackground: Container(
+                          padding: const EdgeInsets.only(right: 16),
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 161, 136, 199),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                'Editar',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              Icon(
+                                Icons.edit_outlined,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                            ],
+                          ),
+                        ),
+                        child: _buildHabitoCard(habitosFiltrados[index]),
+                      ),
+                    );
                   },
                 );
+
               },
             ),
           ),
@@ -163,6 +236,36 @@ class _HomePageState extends State<HomePage> {
       ),
 
       
+    );
+  }
+
+  Future<bool?> _showDeleteConfirmation(BuildContext context, Habito habito) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text('Eliminar Hábito'),
+          content: Text('¿Estás seguro al eliminar "${habito.nombre}"? \n Se eliminará todo el progreso y datos del reto'),
+          actions: [
+            
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text(
+                'Eliminar',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -308,152 +411,159 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildHabitoCard(Habito habito) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: InkWell(
-        onTap: () {
-          // navegacion a detalle del hábito
-          context.push('/habitos/${habito.id}');
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              // grafico 
-              SizedBox(
-                width: 80,
-                height: 80,
-                child: _buildDonutChart(habito),
-              ),
-              
-              const SizedBox(width: 16),
-              
-              // informacion de hábito
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Nombre
-                    Text(
-                      habito.nombre,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 45, 52, 54),
+  return Card(
+    margin: EdgeInsets.zero,  // Remove margin from card
+    elevation: 2,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: InkWell(
+      onTap: () {
+        // navegacion a detalle del hábito
+        context.push('/habitos/${habito.id}');
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            // grafico 
+            SizedBox(
+              width: 80,
+              height: 80,
+              child: _buildDonutChart(habito),
+            ),
+            
+            const SizedBox(width: 16),
+            
+            // informacion de hábito
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Nombre
+                  Text(
+                    habito.nombre,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 45, 52, 54),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 8),
+                  
+                  
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.check_circle_outline,
+                        size: 16,
+                        color: Color.fromARGB(255, 156, 175, 136),
                       ),
-                    ),
-                    
-                    const SizedBox(height: 8),
-                    
-                    
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.check_circle_outline,
-                          size: 16,
-                          color: Color.fromARGB(255, 156, 175, 136),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${habito.diasRealizados}/30 días',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color.fromARGB(255, 99, 110, 114),
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${habito.diasRealizados}/30 días',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color.fromARGB(255, 99, 110, 114),
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    const SizedBox(height: 4),
-                    
-                    
-                    Row(
-                      children: [
-                        const Text(
-                          '🔥',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${habito.streakActual} días seguidos',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color.fromARGB(255, 99, 110, 114),
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    const SizedBox(height: 4),
-                    
-                    
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.calendar_today,
-                          size: 16,
-                          color: Color.fromARGB(255, 212, 165, 116),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Termina: ${_formatearFecha(habito.fechaFin)}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color.fromARGB(255, 99, 110, 114),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              
-              // dias restantes
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(100, 180, 255, 229),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      '${habito.diasRestantes}',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 45, 52, 54),
                       ),
-                    ),
-                    const Text(
-                      'días',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Color.fromARGB(255, 99, 110, 114),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 4),
+                  
+                  
+                  Row(
+                    children: [
+                      const Text(
+                        '🔥',
+                        style: TextStyle(fontSize: 16),
                       ),
-                    ),
-                  ],
-                ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${habito.streakActual} días seguidos',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color.fromARGB(255, 99, 110, 114),
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 4),
+                  
+                  
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.calendar_today,
+                        size: 16,
+                        color: Color.fromARGB(255, 212, 165, 116),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Termina: ${_formatearFecha(habito.fechaFin)}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color.fromARGB(255, 99, 110, 114),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            
+            // dias restantes
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(36, 169, 65, 0),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column( 
+                children: [
+                  const Text(
+                    'Faltan',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Color.fromARGB(255, 99, 110, 114),
+                    ),
+                  ),
+                  Text(
+                    '${habito.diasRestantes}',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 45, 52, 54),
+                    ),
+                  ),
+                  const Text(
+                    'días',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Color.fromARGB(255, 99, 110, 114),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
-    );
-  }
-  
+    ),
+  );
+}
+
   Widget _buildDonutChart(Habito habito) {
     final porcentaje = habito.porcentajeCompletado;
 
-    const coloresChartRandom = [
+    const coloresChartArray = [
       Color.fromARGB(255, 156, 175, 136),
       Color.fromARGB(255, 77, 51, 30),
       Color.fromARGB(255, 251, 203, 91),
@@ -475,7 +585,7 @@ class _HomePageState extends State<HomePage> {
               PieChartSectionData(
                 value: habito.diasRealizados.toDouble(),
                 // color: const Color.fromARGB(255, 156, 175, 136),
-                color: coloresChartRandom[habito.id.hashCode % coloresChartRandom.length],
+                color: coloresChartArray[habito.id.hashCode % coloresChartArray.length],
                 radius: 10,
                 showTitle: false,
               ),
