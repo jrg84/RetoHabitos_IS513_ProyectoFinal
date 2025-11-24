@@ -12,7 +12,20 @@
           "package_name": "com.example.reto_habitos"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "281575281632-ptuib1ij5hu3ri1ielksmveic40j0d4r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.reto_habitos",
+            "certificate_hash": "1c7627a2b61ed9ecc42982efe20ee1e7435f878d"
+          }
+        },
+        {
+          "client_id": "281575281632-ltrfldutp49ah6dkdqvgua45llj76o7a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBSr9itBZnRJyX_cJI2w8tTCy1i2PVlasE"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "281575281632-ltrfldutp49ah6dkdqvgua45llj76o7a.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "281575281632-rjrpcndoeu75i18nf3725o8tm4j99skt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.retoHabitos"
+              }
+            }
+          ]
         }
       }
     },
@@ -31,7 +56,20 @@
           "package_name": "hn.edu.unah.retohabitos"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "281575281632-221bjv5rpt4hfhotr8p367npg677es6g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "hn.edu.unah.retohabitos",
+            "certificate_hash": "1c7627a2b61ed9ecc42982efe20ee1e7435f878d"
+          }
+        },
+        {
+          "client_id": "281575281632-ltrfldutp49ah6dkdqvgua45llj76o7a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBSr9itBZnRJyX_cJI2w8tTCy1i2PVlasE"
@@ -39,7 +77,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "281575281632-ltrfldutp49ah6dkdqvgua45llj76o7a.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "281575281632-rjrpcndoeu75i18nf3725o8tm4j99skt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.retoHabitos"
+              }
+            }
+          ]
         }
       }
     }

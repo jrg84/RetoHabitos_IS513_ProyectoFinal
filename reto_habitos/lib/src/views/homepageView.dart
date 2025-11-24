@@ -225,7 +225,7 @@ class _HomePageState extends State<HomePage> {
             onTap: () async {
               await FirebaseAuth.instance.signOut();
               if (context.mounted) {
-                context.go('/login');
+                context.go('/');
               }
             },
           ),

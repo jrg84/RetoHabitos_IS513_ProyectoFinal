@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:reto_habitos/src/views/createView.dart';
+import 'package:reto_habitos/src/views/loginView.dart';
 import 'firebase_options.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -39,7 +40,7 @@ class MyApp extends StatelessWidget {
 
         //   return null;
         // },
-        initialLocation: '/home',
+        initialLocation: '/',
         routes: [
           // GoRoute(
           //   path: '/login',
@@ -59,8 +60,8 @@ class MyApp extends StatelessWidget {
           ),
           GoRoute(
             path: '/',
-            name: 'default',
-            builder: (state, context) => HomePage(),
+            name: 'login',
+            builder: (state, context) => LoginPage(),
             
           ),
           
