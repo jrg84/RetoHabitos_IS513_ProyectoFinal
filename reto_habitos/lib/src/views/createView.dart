@@ -226,8 +226,8 @@ class _CrearHabitoPageState extends State<CrearHabitoPage> {
               color: const Color.fromARGB(26, 156, 175, 136),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
-              Icons.edit_outlined,
+            child: Icon(
+              icon,
               color: Color.fromARGB(255, 156, 175, 136),
               size: 24,
             ),
