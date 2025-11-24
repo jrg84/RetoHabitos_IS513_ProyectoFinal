@@ -40,4 +40,21 @@ class HabitoProvider {
     await docRef.set(habito.toJson());
     return docRef.id;
   }
+
+  Future<String> crearHabito(Habito habito) async {
+    final docRef = _db.collection('habitos').doc();
+    
+    final habitoConId = Habito(
+      id: docRef.id,
+      nombre: habito.nombre,
+      descripcion: habito.descripcion,
+      duracion: habito.duracion,
+      fechaInicio: habito.fechaInicio,
+      fechaFin: habito.fechaFin,
+      userId: habito.userId,
+    );
+    
+    await docRef.set(habitoConId.toJson());
+    return docRef.id;
+  }
 }

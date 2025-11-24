@@ -143,12 +143,16 @@ class _HomePageState extends State<HomePage> {
               },
             ),
           ),
+
+          
         ],
+        
       ),
+
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           // TODO: Navegar a crear hábito
-          context.push('/habitos/crear');
+          context.push('/crear');
         },
         backgroundColor: const Color.fromARGB(255, 156, 175, 136),
         icon: const Icon(Icons.add, color: Colors.white),
@@ -157,6 +161,8 @@ class _HomePageState extends State<HomePage> {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
+
+      
     );
   }
 
@@ -164,7 +170,10 @@ class _HomePageState extends State<HomePage> {
     // final user = FirebaseAuth.instance.currentUser;
     
     return Drawer(
-      child: Column(
+      child: SafeArea(
+        top: true,
+        bottom: false,
+        child: Column(
         children: [
           // Header con perfil
           // UserAccountsDrawerHeader(
@@ -223,7 +232,9 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 16),
         ],
       ),
+    )
     );
+
   }
 
   Widget _buildEmptyState() {
@@ -441,6 +452,15 @@ class _HomePageState extends State<HomePage> {
   
   Widget _buildDonutChart(Habito habito) {
     final porcentaje = habito.porcentajeCompletado;
+
+    const coloresChartRandom = [
+      Color.fromARGB(255, 156, 175, 136),
+      Color.fromARGB(255, 77, 51, 30),
+      Color.fromARGB(255, 251, 203, 91),
+      // // Color.fromARGB(255, 255, 118, 117),
+      Color.fromARGB(255, 186, 172, 250),
+      Color.fromARGB(255, 235, 121, 14),
+    ];
     
     return Stack(
       alignment: Alignment.center,
@@ -454,7 +474,8 @@ class _HomePageState extends State<HomePage> {
               // Completado
               PieChartSectionData(
                 value: habito.diasRealizados.toDouble(),
-                color: const Color.fromARGB(255, 156, 175, 136),
+                // color: const Color.fromARGB(255, 156, 175, 136),
+                color: coloresChartRandom[habito.id.hashCode % coloresChartRandom.length],
                 radius: 10,
                 showTitle: false,
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:reto_habitos/src/views/createView.dart';
 import 'firebase_options.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -60,6 +61,13 @@ class MyApp extends StatelessWidget {
             path: '/',
             name: 'default',
             builder: (state, context) => HomePage(),
+            
+          ),
+          
+          GoRoute(
+            path: '/crear',
+            name: 'crear',
+            builder: (state, context) => CrearHabitoPage(),
             
           ),
         ],
