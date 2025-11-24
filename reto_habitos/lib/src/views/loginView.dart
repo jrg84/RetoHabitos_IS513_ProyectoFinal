@@ -99,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 12),
                 
                 const Text(
-                  'Transforma tu vida, un día a la vez',
+                  'Completa tus retos a diario',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white,
@@ -146,22 +146,31 @@ class _LoginPageState extends State<LoginPage> {
                               : Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Image.asset(
-                                      'assets/images/google_logo.png',
-                                      height: 24,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return const Icon(
-                                          Icons.g_mobiledata,
-                                          size: 32,
-                                        );
-                                      },
+                                    SizedBox(
+                                      height: 30,
+                                      width: 30,
+                                      child: Image.asset(
+                                        'lib/assets/images/googleIconNew.png',
+                                        fit: BoxFit.contain,
+                                        // errorBuilder: (context, error, stackTrace) {
+                                        //   return const Icon(
+                                        //     Icons.g_mobiledata,
+                                        //     size: 24,
+                                        //     color: Color.fromARGB(255, 45, 52, 54),
+                                        //   );
+                                        // },
+                                      ),
                                     ),
                                     const SizedBox(width: 12),
-                                    const Text(
-                                      'Continuar con Google',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
+                                    Flexible(
+                                      child: const Text(
+                                        'Continuar con Google',
+                                        textAlign: TextAlign.center,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -171,14 +180,14 @@ class _LoginPageState extends State<LoginPage> {
                       
                       const SizedBox(height: 16),
                       
-                      Text(
-                        'Al continuar, aceptas nuestros términos y condiciones',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white.withOpacity(0.9),
-                        ),
-                      ),
+                      // Text(
+                      //   '',
+                      //   textAlign: TextAlign.center,
+                      //   style: TextStyle(
+                      //     fontSize: 12,
+                      //     color: Colors.white.withOpacity(0.9),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -224,7 +233,8 @@ class _LoginPageState extends State<LoginPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al iniciar sesión: $e'),
+            // content: Text('Error al iniciar sesión: $e'),
+            content: const Text('Error al iniciar sesión. Inténtalo de nuevo.'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(

@@ -6,19 +6,26 @@ import '../models/HabitosModel.dart';
 class HabitoProvider {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   
-  // String get userId => FirebaseAuth.instance.currentUser!.uid;
+  String? get userId => FirebaseAuth.instance.currentUser?.uid;
 
-  /// Stream de hábitos del usuario
+  /// Stream de hábitos 
   Stream<List<Habito>> getHabitosUsuario() {
+    final uid = userId;
+    if (uid == null) {
+      return Stream.value(<Habito>[]);
+    }
+    
     return _db
         .collection('habitos')
-        // .where('userId', isEqualTo: userId)
-        .orderBy('fechaInicio', descending: true)
+        .where('userId', isEqualTo: uid)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return Habito.fromJson(doc.data());
-      }).toList();
+
+      final list = snapshot.docs.map((doc) => Habito.fromJson(doc.data())).toList();
+
+      list.sort((a, b) => b.fechaInicio.compareTo(a.fechaInicio));
+
+      return list;
     });
   }
 
@@ -31,7 +38,7 @@ class HabitoProvider {
       nombre: 'Meditación',
       descripcion: 'Meditar 10 minutos cada mañana',
       duracion: 10,
-      userId: 'test',
+      userId: userId ?? 'null',
       diasRealizados: 5,
       streakActual: 3,
       streakMaxima: 5,
@@ -51,7 +58,7 @@ class HabitoProvider {
       duracion: habito.duracion,
       fechaInicio: habito.fechaInicio,
       fechaFin: habito.fechaFin,
-      userId: habito.userId,
+      userId: userId ?? 'null',
     );
     
     await docRef.set(habitoConId.toJson());
