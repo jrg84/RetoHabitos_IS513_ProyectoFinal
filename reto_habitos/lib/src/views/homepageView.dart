@@ -442,32 +442,7 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Nombre
-              Row(
-                children: [      Text(
-                      habito.nombre,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 45, 52, 54),
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 8),
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => EditView(habito: habito),
-                          ),
-                        );
-                      },
-                    ),
-              ],
-              )
-              ,      
+                    // Nombre     
                     Row(
                       children: [
                         const Icon(
