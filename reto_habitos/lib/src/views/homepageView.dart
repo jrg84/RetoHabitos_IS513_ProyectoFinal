@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import '../models/HabitosModel.dart';
 import '../providers/habitosprovider.dart';
+import '../views/habito_timer_view.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -317,7 +318,13 @@ class _HomePageState extends State<HomePage> {
       child: InkWell(
         onTap: () {
           // navegacion a detalle del hábito
-          context.push('/habitos/${habito.id}');
+          //context.push('/habitos/${habito.id}');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => HabitoTimerView(habito: habito),
+            ),
+          );
         },
         borderRadius: BorderRadius.circular(16),
         child: Padding(
