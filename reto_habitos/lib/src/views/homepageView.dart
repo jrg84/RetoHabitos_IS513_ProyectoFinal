@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/HabitosModel.dart';
 import '../providers/habitosprovider.dart';
 import '../views/habito_timer_view.dart';
@@ -138,7 +139,74 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(16),
                   itemCount: habitosFiltrados.length,
                   itemBuilder: (context, index) {
-                    return _buildHabitoCard(habitosFiltrados[index]);
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Dismissible(
+                          key: Key(habitosFiltrados[index].id!),
+                          confirmDismiss: (direction) async {
+                            if (direction == DismissDirection.endToStart) {
+                              // editar
+                              context.push(
+                                '/editar/${habitosFiltrados[index].id}',
+                                extra: habitosFiltrados[index],
+                              );
+                              return false;
+                            }
+
+                            // eliminar
+                            return await _showDeleteConfirmation(
+                              context,
+                              habitosFiltrados[index],
+                            );
+                          },
+                          onDismissed: (direction) async {
+                            if (direction == DismissDirection.startToEnd) {
+                              await FirebaseFirestore.instance
+                                  .collection('habitos')
+                                  .doc(habitosFiltrados[index].id)
+                                  .delete();
+                            }
+                          },
+                          background: Container(
+                            padding: const EdgeInsets.only(left: 16),
+                            color: Colors.red,
+                            alignment: Alignment.centerLeft,
+                            child: const Icon(
+                              Icons.delete_outline_rounded,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                          ),
+                          secondaryBackground: Container(
+                            padding: const EdgeInsets.only(right: 16),
+                            color: const Color.fromARGB(255, 161, 136, 199),
+                            alignment: Alignment.centerRight,
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Editar',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Icon(
+                                  Icons.edit_outlined,
+                                  color: Colors.white,
+                                  size: 30,
+                                ),
+                              ],
+                            ),
+                          ),
+                          child: _buildHabitoCard(habitosFiltrados[index]),
+                        ),
+                      ),
+                    );
                   },
                 );
               },
@@ -164,6 +232,34 @@ class _HomePageState extends State<HomePage> {
       ),
 
       
+    );
+  }
+
+  Future<bool?> _showDeleteConfirmation(BuildContext context, Habito habito) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text('Eliminar Hábito'),
+          content: Text('¿Estás seguro al eliminar "${habito.nombre}"? \nSe eliminará todo el progreso y datos del reto'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text(
+                'Eliminar',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -208,7 +304,7 @@ class _HomePageState extends State<HomePage> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             selected: true,
-            selectedTileColor: const Color.fromARGB(255, 184, 224, 210).withOpacity(0.2),
+            selectedTileColor: const Color.fromARGB(51, 184, 224, 210),
             onTap: () {
               Navigator.pop(context);
             },
@@ -249,8 +345,8 @@ class _HomePageState extends State<HomePage> {
             Container(
               width: 200,
               height: 200,
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 184, 224, 210).withOpacity(0.3),
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(77, 184, 224, 210),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -310,7 +406,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildHabitoCard(Habito habito) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.zero,
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -427,11 +523,18 @@ class _HomePageState extends State<HomePage> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(100, 180, 255, 229),
+                  color: const Color.fromARGB(36, 169, 65, 0),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Column(
+                child: Column( 
                   children: [
+                    const Text(
+                      'Faltan',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Color.fromARGB(255, 99, 110, 114),
+                      ),
+                    ),
                     Text(
                       '${habito.diasRestantes}',
                       style: const TextStyle(
@@ -460,7 +563,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildDonutChart(Habito habito) {
     final porcentaje = habito.porcentajeCompletado;
 
-    const coloresChartRandom = [
+    const coloresChartArray = [
       Color.fromARGB(255, 156, 175, 136),
       Color.fromARGB(255, 77, 51, 30),
       Color.fromARGB(255, 251, 203, 91),
@@ -482,7 +585,7 @@ class _HomePageState extends State<HomePage> {
               PieChartSectionData(
                 value: habito.diasRealizados.toDouble(),
                 // color: const Color.fromARGB(255, 156, 175, 136),
-                color: coloresChartRandom[habito.id.hashCode % coloresChartRandom.length],
+                color: coloresChartArray[habito.id.hashCode % coloresChartArray.length],
                 radius: 10,
                 showTitle: false,
               ),
