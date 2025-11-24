@@ -88,7 +88,7 @@ class _MyAppState extends State<MyApp> {
           name: 'crear',
           builder: (BuildContext context, GoRouterState state) => CrearHabitoPage(),
         ),
-        /*GoRoute(
+        GoRoute(
        path: '/editar/:id', 
        name: 'editar',
        builder: (BuildContext context, GoRouterState state) {
@@ -96,7 +96,7 @@ class _MyAppState extends State<MyApp> {
        return EditView(habito: habito);
   },
 ),
-*/
+
       ],
     );
   }
