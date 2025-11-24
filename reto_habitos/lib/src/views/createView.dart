@@ -109,7 +109,7 @@ class _CrearHabitoPageState extends State<CrearHabitoPage> {
                     _buildTextField(
                       controller: _nombreController,
                       hint: 'Ej: Meditación diaria',
-                      icon: Icons.edit_outlined,
+                      icon: Icons.short_text_rounded,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Por favor ingresa un nombre';
