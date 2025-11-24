@@ -109,7 +109,7 @@ class _CrearHabitoPageState extends State<CrearHabitoPage> {
                     _buildTextField(
                       controller: _nombreController,
                       hint: 'Ej: Meditación diaria',
-                      icon: Icons.edit_outlined,
+                      icon: Icons.short_text_rounded,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Por favor ingresa un nombre';
@@ -226,8 +226,8 @@ class _CrearHabitoPageState extends State<CrearHabitoPage> {
               color: const Color.fromARGB(26, 156, 175, 136),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
-              Icons.edit_outlined,
+            child: Icon(
+              icon,
               color: Color.fromARGB(255, 156, 175, 136),
               size: 24,
             ),
