@@ -64,4 +64,7 @@ class HabitoProvider {
     await docRef.set(habitoConId.toJson());
     return docRef.id;
   }
+    Future<void> actualizarHabito(Habito habito) async {
+  await _db.collection('habitos').doc(habito.id).update(habito.toJson());
+}
 }

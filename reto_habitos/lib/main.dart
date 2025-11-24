@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:reto_habitos/src/models/HabitosModel.dart';
 import 'package:reto_habitos/src/views/createView.dart';
+import 'package:reto_habitos/src/views/editView.dart';
 import 'package:reto_habitos/src/views/loginView.dart';
 import 'firebase_options.dart';
 import 'package:go_router/go_router.dart';
@@ -86,6 +88,15 @@ class _MyAppState extends State<MyApp> {
           name: 'crear',
           builder: (BuildContext context, GoRouterState state) => CrearHabitoPage(),
         ),
+        GoRoute(
+       path: '/editar/:id', 
+       name: 'editar',
+       builder: (BuildContext context, GoRouterState state) {
+       final habito = state.extra as Habito; 
+       return EditView(habito: habito);
+  },
+),
+
       ],
     );
   }

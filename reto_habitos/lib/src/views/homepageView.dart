@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:reto_habitos/src/views/editView.dart';
 import '../models/HabitosModel.dart';
 import '../providers/habitosprovider.dart';
 import '../views/habito_timer_view.dart';
@@ -442,7 +443,8 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Nombre
-                    Text(
+              Row(
+                children: [      Text(
                       habito.nombre,
                       style: const TextStyle(
                         fontSize: 18,
@@ -452,8 +454,20 @@ class _HomePageState extends State<HomePage> {
                     ),
                     
                     const SizedBox(height: 8),
-                    
-                    
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => EditView(habito: habito),
+                          ),
+                        );
+                      },
+                    ),
+              ],
+              )
+              ,      
                     Row(
                       children: [
                         const Icon(
